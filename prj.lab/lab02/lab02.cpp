@@ -8,7 +8,7 @@
 
 
 void addGaussianNoise(cv::Mat& image, double avgNoiseVal, double stdDeviation) {
-    cv::Mat noise = cv::Mat(image.size(), CV_8UC1);
+    cv::Mat noise = cv::Mat(image.size(), CV_8SC1);
     cv::randn(noise, avgNoiseVal, stdDeviation);
     image += noise;
 }
@@ -56,7 +56,7 @@ int main() {
 
     // Изображение с шумом
     cv::Mat noisyImage = image.clone();
-    addGaussianNoise(noisyImage, 0, 20);
+    addGaussianNoise(noisyImage, 0, 7);
     
     // Данные для отрисовки гистограмм
     std::array<int, 256> origArr = {0};
