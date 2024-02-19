@@ -1,82 +1,114 @@
 #include <iostream>
-#include <fstream>
-#include <random>
-#include <array>
+#include <vector>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
 
 
-void addGaussianNoise(cv::Mat& image, double avgNoiseVal, double stdDeviation) {
-    cv::Mat noise = cv::Mat(image.size(), CV_8SC1);
-    cv::randn(noise, avgNoiseVal, stdDeviation);
-    image += noise;
+
+// Функция для генерации тестового изображения с тремя уровнями яркости
+cv::Mat generate_test_image(std::vector<int> level) {
+    int side_length = 256;
+    cv::Mat image(side_length, side_length, CV_8UC1, cv::Scalar(level[0], level[0], level[0]));
+
+    int inner_square_side = 209;
+    int radius = 83;
+    cv::Rect inner_square_rect((side_length - inner_square_side) / 2, (side_length - inner_square_side) / 2, inner_square_side, inner_square_side);
+    rectangle(image, inner_square_rect, cv::Scalar(level[1], level[1], level[1]), -1);
+
+    cv::Point center(side_length / 2, side_length / 2);
+    cv::circle(image, center, radius, cv::Scalar(level[2], level[2], level[2]), -1);
+
+    return image;
 }
 
-void saveHistToCsv(std::array<int, 256> hist) {
-    std::ofstream out; 
-    std::string filename = "output.csv";
-    out.open(filename);
-    for (int i = 0; i < hist.size(); ++i) {
-        out << i << ';' << hist[i] << '\n';       
-        if (!out.good()) {
-            break;
-        }
-    }  
-}
+// Функция для рисования гистограммы яркости
+cv::Mat draw_brightness_histogram(const cv::Mat& image) {
+    cv::Mat histogram_image(256, 256, CV_8UC1, cv::Scalar(230));
 
-int main() {
-    cv::Mat image(400, 400, CV_8UC1);
-
-    int square_size = 400; 
-
-    // Определение вершин внешнего квадрата
-    int x1 = (image.cols - square_size) / 2;
-    int y1 = (image.rows - square_size) / 2; 
-
-    int x2 = x1 + square_size; 
-    int y2 = y1 + square_size; 
-
-    // Определение параметров внутреннего квадрата
-    int inner_square_size = square_size / 2; // Размер внутреннего квадрата
-
-    int x3 = x1 + (square_size - inner_square_size) / 2; 
-    int y3 = y1 + (square_size - inner_square_size) / 2;
-
-    int x4 = x3 + inner_square_size;
-    int y4 = y3 + inner_square_size; 
-
-    // Отрисовка внешнего квадрата
-    cv::rectangle(image, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(100, 100, 100), -1);
-
-    // Отрисовка внутреннего квадрата
-    cv::rectangle(image, cv::Point(x3, y3), cv::Point(x4, y4), cv::Scalar(150, 150, 150), -1);
-
-    cv::circle(image, cv::Point(200, 200), 50, cv::Scalar(200, 200, 200), -1);
-
-    // Изображение с шумом
-    cv::Mat noisyImage = image.clone();
-    addGaussianNoise(noisyImage, 0, 7);
-    
-    // Данные для отрисовки гистограмм
-    std::array<int, 256> origArr = {0};
-    std::array<int, 256> noisyArr = { 0 };
-
-    for (int i = 0; i < image.rows; i++)
-    {
-        for (int j = 0; j < image.cols; j++)
-        {
-            origArr[image.at<uchar>(j, i)] += 1;
-            noisyArr[noisyImage.at<uchar>(j, i)] += 1;
+    std::vector<int> hist(256, 0);
+    for (int i = 0; i < image.rows; ++i) {
+        for (int j = 0; j < image.cols; ++j) {
+            hist[image.at<uchar>(i, j)]++;
         }
     }
 
-    cv::imshow("Original", image);
-    cv::imshow("Noisy Image", noisyImage);
-    cv::waitKey(0);
+    int max_hist = *max_element(hist.begin(), hist.end());
+    float scale_factor = 230.0 / max_hist;
 
-    //saveHistToCsv(origArr);
-    saveHistToCsv(noisyArr);
-    
+    for (int i = 0; i < 256; ++i) {
+        int hist_height = hist[i] * scale_factor;
+        cv::rectangle(histogram_image, cv::Point(i, 255), cv::Point(i + 1, 255 - hist_height), cv::Scalar(0), -1);
+    }
+
+    return histogram_image;
+}
+
+// Функция для добавления аддитивного нормального шума
+cv::Mat add_gaussian_noise(const cv::Mat& image, double std_dev) {
+    cv::Mat noisy_image;
+    cv::Mat noise(image.size(), CV_32FC1);
+    cv::randn(noise, 0, std_dev);
+
+    image.convertTo(noisy_image, CV_32FC1);
+    noisy_image += noise;
+    noisy_image.convertTo(noisy_image, CV_8UC1);
+
+    return noisy_image;
+}
+
+int main() {
+    std::vector<std::vector<int>> test_levels = { {0, 127, 255}, {20, 127, 235}, {55, 127, 200}, {90, 127, 165} };
+    std::vector<double> std_devs = { 3, 7, 15 };
+
+    std::vector<cv::Mat> test_images;
+    std::vector<std::vector<cv::Mat>> noisy_images;
+    std::vector<std::vector<cv::Mat>> histograms;
+
+    // Генерация тестовых изображений
+    for (const auto& levels : test_levels) {
+        cv::Mat test_image = generate_test_image(levels);
+        test_images.push_back(test_image);
+
+        std::vector<cv::Mat> noise_images_for_levels;
+        std::vector<cv::Mat> histograms_for_levels;
+
+        // Генерация зашумленных изображений и гистограмм
+        for (double std_dev : std_devs) {
+            cv::Mat noisy_image = add_gaussian_noise(test_image, std_dev);
+            noise_images_for_levels.push_back(noisy_image);
+
+            cv::Mat histogram = draw_brightness_histogram(noisy_image);
+            histograms_for_levels.push_back(histogram);
+        }
+
+        noisy_images.push_back(noise_images_for_levels);
+        histograms.push_back(histograms_for_levels);
+    }
+
+    // Склеивание изображений
+    cv::Mat combined_image;
+    for (size_t i = 0; i < test_levels.size(); ++i) {
+        cv::Mat row;
+        for (size_t j = 0; j < std_devs.size(); ++j) {
+            cv::Mat combined_row;
+            cv::hconcat(noisy_images[i][j], histograms[i][j], combined_row);
+            if (j == 0) {
+                cv::hconcat(test_images[i], combined_row, row);
+            }
+            else {
+                cv::hconcat(row, combined_row, row);
+            }
+        }
+        if (i == 0) {
+            combined_image = row.clone();
+        }
+        else {
+            cv::vconcat(combined_image, row, combined_image);
+        }
+    }
+
+    cv::imshow("Final Image", combined_image);
+    cv::waitKey(0);
     return 0;
 }
