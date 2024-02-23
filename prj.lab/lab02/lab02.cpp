@@ -59,7 +59,7 @@ cv::Mat add_gaussian_noise(const cv::Mat& image, double std_dev) {
 
 int main() {
     std::vector<std::vector<int>> test_levels = { {0, 127, 255}, {20, 127, 235}, {55, 127, 200}, {90, 127, 165} };
-    std::vector<double> std_devs = { 3, 7, 15 };
+    std::vector<double> std_devs = {0, 3, 7, 15 };
 
     std::vector<cv::Mat> test_images;
     std::vector<std::vector<cv::Mat>> noisy_images;
@@ -89,26 +89,28 @@ int main() {
     // Склеивание изображений
     cv::Mat combined_image;
     for (size_t i = 0; i < test_levels.size(); ++i) {
-        cv::Mat row;
+        cv::Mat combined_col;
         for (size_t j = 0; j < std_devs.size(); ++j) {
-            cv::Mat combined_row;
-            cv::hconcat(noisy_images[i][j], histograms[i][j], combined_row);
+            cv::Mat col;
+            cv::vconcat(noisy_images[i][j], histograms[i][j], col);
             if (j == 0) {
-                cv::hconcat(test_images[i], combined_row, row);
+                combined_col = col.clone();
             }
             else {
-                cv::hconcat(row, combined_row, row);
+                cv::vconcat(combined_col, col, combined_col);
             }
         }
         if (i == 0) {
-            combined_image = row.clone();
+            combined_image = combined_col.clone();
         }
         else {
-            cv::vconcat(combined_image, row, combined_image);
+            cv::hconcat(combined_image, combined_col, combined_image);
         }
+        
     }
 
     cv::imshow("Final Image", combined_image);
+    cv::imwrite("lab02.png", combined_image);
     cv::waitKey(0);
     return 0;
 }
