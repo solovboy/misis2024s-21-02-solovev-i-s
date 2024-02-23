@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <string>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
@@ -19,6 +20,9 @@ cv::Mat generate_test_image(std::vector<int> level) {
     cv::Point center(side_length / 2, side_length / 2);
     cv::circle(image, center, radius, cv::Scalar(level[2], level[2], level[2]), -1);
 
+    std::string text = std::to_string(level[0]) + " " + std::to_string(level[1]) + " " + std::to_string(level[2]);
+    cv::Point org(side_length / 3.5, side_length / 7 + 5.0);
+    cv::putText(image, text, org, cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 0, 0));
     return image;
 }
 
@@ -59,7 +63,7 @@ cv::Mat add_gaussian_noise(const cv::Mat& image, double std_dev) {
 
 int main() {
     std::vector<std::vector<int>> test_levels = { {0, 127, 255}, {20, 127, 235}, {55, 127, 200}, {90, 127, 165} };
-    std::vector<double> std_devs = {0, 3, 7, 15 };
+    std::vector<int> std_devs = {0, 3, 7, 15 };
 
     std::vector<cv::Mat> test_images;
     std::vector<std::vector<cv::Mat>> noisy_images;
@@ -92,7 +96,15 @@ int main() {
         cv::Mat combined_col;
         for (size_t j = 0; j < std_devs.size(); ++j) {
             cv::Mat col;
-            cv::vconcat(noisy_images[i][j], histograms[i][j], col);
+
+            cv::Mat curImg = noisy_images[i][j].clone();
+            if(j != 0) {
+                std::string text = "std_dev = " + std::to_string(std_devs[j]);
+                cv::Point org(256 / 4, 256 / 2);
+                cv::putText(curImg, text, org, cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 0, 0));
+            }
+
+            cv::vconcat(curImg, histograms[i][j], col);
             if (j == 0) {
                 combined_col = col.clone();
             }
