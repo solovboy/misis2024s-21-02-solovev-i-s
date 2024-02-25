@@ -10,19 +10,19 @@
 // Функция для генерации тестового изображения с тремя уровнями яркости
 cv::Mat generate_test_image(std::vector<int> level) {
     int side_length = 256;
-    cv::Mat image(side_length, side_length, CV_8UC1, cv::Scalar(level[0], level[0], level[0]));
+    cv::Mat image(side_length, side_length, CV_8UC1, cv::Scalar(level[0]));
 
     int inner_square_side = 209;
     int radius = 83;
     cv::Rect inner_square_rect((side_length - inner_square_side) / 2, (side_length - inner_square_side) / 2, inner_square_side, inner_square_side);
-    rectangle(image, inner_square_rect, cv::Scalar(level[1], level[1], level[1]), -1);
+    rectangle(image, inner_square_rect, cv::Scalar(level[1]), -1);
 
     cv::Point center(side_length / 2, side_length / 2);
-    cv::circle(image, center, radius, cv::Scalar(level[2], level[2], level[2]), -1);
+    cv::circle(image, center, radius, cv::Scalar(level[2]), -1);
 
     std::string text = std::to_string(level[0]) + " " + std::to_string(level[1]) + " " + std::to_string(level[2]);
     cv::Point org(side_length / 3.5, side_length / 7 + 5.0);
-    cv::putText(image, text, org, cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 0, 0));
+    cv::putText(image, text, org, cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0));
     return image;
 }
 
@@ -101,7 +101,7 @@ int main() {
             if(j != 0) {
                 std::string text = "std_dev = " + std::to_string(std_devs[j]);
                 cv::Point org(256 / 4, 256 / 2);
-                cv::putText(curImg, text, org, cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 0, 0));
+                cv::putText(curImg, text, org, cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0));
             }
 
             cv::vconcat(curImg, histograms[i][j], col);
