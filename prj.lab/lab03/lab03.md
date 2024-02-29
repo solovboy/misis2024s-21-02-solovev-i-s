@@ -38,4 +38,4 @@ q0 и q1 - квантили. Дефолтные значения квантилей 0.3 и 0.7 соответственно.
 
 ![ImagesBGR](ImagesBGR.png "ImagesBGR")
 
-![HistogramsBGR](HistogramsBW.png "HistogramsBGR")
+![HistogramsBGR](HistogramsBGR.png "HistogramsBGR")
