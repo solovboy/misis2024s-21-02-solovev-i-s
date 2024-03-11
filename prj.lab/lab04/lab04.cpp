@@ -89,13 +89,13 @@ void onTrackbar(int, void*) {}
 
 int main(int argc, char* argv[]) {
 	//Default parametrs
-	int countCircles = 6;
-	int minRadius = 15;
-	int maxRadius = 30;
+	int countCircles = 10;
+	int minRadius = 5;
+	int maxRadius = 15;
 	int minContrast = 50;
 	int maxContrast = 255;
 	int blur = 4;
-	int method = 1;
+	int method = 0;
 
 	if (argc >= 7) {
 		countCircles = std::stoi(argv[1]);
@@ -104,6 +104,7 @@ int main(int argc, char* argv[]) {
 		minContrast = std::stoi(argv[4]);
 		maxContrast = std::stoi(argv[5]);
 		blur = std::stoi(argv[6]);
+		method = std::stoi(argv[7]);
 	}
 
 	cv::Mat image = generateImage(countCircles, minRadius, maxRadius, minContrast, maxContrast, blur);
@@ -156,5 +157,30 @@ int main(int argc, char* argv[]) {
 			if (key == 27) // ESC key to exit
 				break;
 		}
+	}
+	else {
+		// Search for circles in the image
+		std::vector<cv::Vec3f> circles;
+		cv::HoughCircles(image, circles, cv::HOUGH_GRADIENT, 1,
+			(image.rows - image.rows / 5) / (countCircles - 1), 
+			100, 10,       
+			minRadius, maxRadius);  
+
+		// Drawing detected circles
+		cv::Mat detected_circles_image;
+		cv::cvtColor(image, detected_circles_image, cv::COLOR_GRAY2BGR); 
+		for (size_t i = 0; i < circles.size(); i++)
+		{
+			cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+			int radius = cvRound(circles[i][2]);
+
+			cv::circle(detected_circles_image, center, 3, cv::Scalar(0, 255, 0), -1, 1);
+
+			cv::circle(detected_circles_image, center, radius, cv::Scalar(0, 0, 255), 1, 1);
+		}
+
+		cv::imshow("Original Image", image);
+		cv::imshow("Detected Circles", detected_circles_image);
+		cv::waitKey(0);
 	}
 }
