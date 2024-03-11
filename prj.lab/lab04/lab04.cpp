@@ -85,6 +85,7 @@ cv::Mat generateImage(const int& countCircles, int minRadius, int maxRadius, int
 	return image;
 }
 
+void onTrackbar(int, void*) {}
 
 int main(int argc, char* argv[]) {
 	//Default parametrs
@@ -94,6 +95,7 @@ int main(int argc, char* argv[]) {
 	int minContrast = 50;
 	int maxContrast = 255;
 	int blur = 4;
+	int method = 1;
 
 	if (argc >= 7) {
 		countCircles = std::stoi(argv[1]);
@@ -106,12 +108,53 @@ int main(int argc, char* argv[]) {
 
 	cv::Mat image = generateImage(countCircles, minRadius, maxRadius, minContrast, maxContrast, blur);
 
-	cv::Mat binaryBernsen = bernsenBinary(image, 3, 3);
 
-	cv::Mat binaryNiblack = niblackBinary(image, 3, -0.2);
+	//cv::Mat binaryBernsen = bernsenBinary(image, 3, 3);
 
-	cv::imshow("Original", image);
-	cv::imshow("binaryBernsen", binaryBernsen);
-	cv::imshow("binaryNiblack", binaryNiblack);
-	cv::waitKey(0);
+	//cv::Mat binaryNiblack = niblackBinary(image, 2, -1);
+
+	cv::Mat binaryImage;
+
+	if (method == 1) {
+		int windowSize = 1;
+		int contrastThreshold = 1;
+
+		cv::namedWindow("Binary Image");
+		cv::createTrackbar("Window Size", "Binary Image", &windowSize, 30, onTrackbar);
+		cv::setTrackbarMin("Window Size", "Binary Image", windowSize);
+		cv::createTrackbar("Contrast Threshold", "Binary Image", &contrastThreshold, 255, onTrackbar);
+		cv::setTrackbarMin("Contrast Threshold", "Binary Image", contrastThreshold);
+		onTrackbar(0, 0);
+
+		while (true) {
+			binaryImage = bernsenBinary(image, windowSize, contrastThreshold);
+			imshow("Binary Image", binaryImage);
+
+			char key = cv::waitKey(10);
+			if (key == 27) // ESC key to exit
+				break;
+		}
+	
+	}
+	else if (method == 2){
+		int windowSize = 1;
+		double k = -10;
+
+		cv::namedWindow("Binary Image");
+		cv::createTrackbar("Window Size", "Binary Image", &windowSize, 15, onTrackbar);
+		cv::setTrackbarMin("Window Size", "Binary Image", windowSize);
+		cv::createTrackbar("k Value", "Binary Image", nullptr, 0, onTrackbar);
+		cv::setTrackbarMin("k Value", "Binary Image", k);
+		onTrackbar(0, 0);
+
+		while (true) {
+			k = static_cast<double>(cv::getTrackbarPos("k Value", "Binary Image")) / 5.0;
+			binaryImage = niblackBinary(image, windowSize, k);
+			imshow("Binary Image", binaryImage);
+
+			char key = cv::waitKey(10);
+			if (key == 27) // ESC key to exit
+				break;
+		}
+	}
 }
