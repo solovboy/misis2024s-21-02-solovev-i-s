@@ -5,64 +5,57 @@
 #include <opencv2/highgui.hpp>
 
 
-cv::Mat niblackBinary(const cv::Mat& image, int windowSize, double k) {
-	cv::Mat binary(image.size(), CV_8U, cv::Scalar(0));
+cv::Mat niblackBinary(const cv::Mat& image, const int radius, const int k, const int d) {
+	cv::Mat binary;
 
-	int halfWindowSize = windowSize / 2;
-
-	#pragma omp parallel for collapse(2)
-	for (int y = halfWindowSize; y < image.rows - halfWindowSize; ++y) {
-		for (int x = halfWindowSize; x < image.cols - halfWindowSize; ++x) {
-			cv::Rect windowRect(x - halfWindowSize, y - halfWindowSize, windowSize, windowSize);
-			cv::Mat window = image(windowRect);
-
-			// Calculate the average value and standard deviation in the window
-			cv::Scalar mean, stddev;
-			cv::meanStdDev(window, mean, stddev);
-
-			double threshold = mean.val[0] + k * stddev.val[0];
-
-			// If the contrast is greater than the threshold, then the pixel turns white, otherwise black
-			if (image.at<uchar>(y, x) > threshold)
-				binary.at<uchar>(y, x) = 255;
-			else
-				binary.at<uchar>(y, x) = 0;
-		}
-	}
+	constexpr int max = static_cast<int>(std::numeric_limits<uchar>::max());
+	cv::Mat kernel{ cv::Mat::zeros(2 * radius + 1, 2 * radius + 1, CV_32FC1) };
+	cv::circle(kernel, cv::Point{ radius, radius }, radius, cv::Scalar{ 1.0f }, -1);
+	kernel /= cv::sum(kernel)[0];
+	cv::Mat tmp{ image.clone() };
+	tmp.convertTo(tmp, CV_32FC1, 1.0 / max);
+	cv::Mat mean{ tmp.clone() };
+	cv::filter2D(tmp, mean, -1, kernel);
+	cv::multiply(tmp, tmp, tmp);
+	cv::Mat meanSq{ tmp.clone() };
+	cv::filter2D(tmp, meanSq, -1, kernel);
+	cv::multiply(mean, mean, tmp);
+	cv::sqrt(meanSq - tmp, tmp);
+	image.convertTo(binary, CV_32FC1, 1.0 / max);
+	binary = binary > (mean + k * tmp + static_cast<double>(d) / max);
+	binary.convertTo(binary, CV_8UC1, max);
 
 	return binary;
 }
 
-cv::Mat bernsenBinary(const cv::Mat& image, int windowSize, int contrastThreshold) {
-	cv::Mat binary(image.size(), CV_8U, cv::Scalar(0));
+cv::Mat bernsenBinary(const cv::Mat& image, const int radius, const int cmin) {
+	cv::Mat binary;
 
-	int halfWindowSize = windowSize / 2;
-	int contrastMax = 255;
-
-	#pragma omp parallel for collapse(2)
-	for (int y = halfWindowSize; y < image.rows - halfWindowSize; ++y) {
-		for (int x = halfWindowSize; x < image.cols - halfWindowSize; ++x) {
-			cv::Rect windowRect(x - halfWindowSize, y - halfWindowSize, windowSize, windowSize);
-			cv::Mat window = image(windowRect);
-
-			// Find the minimum and maximum values in the window
-			double minVal, maxVal;
-			cv::minMaxLoc(window, &minVal, &maxVal);
-
-			// Calculating the window contrast
-			double contrast = maxVal - minVal;
-
-			// If the contrast is greater than the threshold, then the pixel turns white, otherwise black
-			if (contrast >= contrastThreshold)
-				binary.at<uchar>(y, x) = contrastMax;
-			else
-				binary.at<uchar>(y, x) = 0;
-		}
-	}
+	constexpr int max = static_cast<int>(std::numeric_limits<uchar>::max());
+	cv::Mat kernel{ cv::Mat::zeros(2 * radius + 1, 2 * radius + 1, CV_8UC1) };
+	cv::circle(kernel, cv::Point{ radius, radius }, radius, cv::Scalar{ max }, -1);
+	cv::Mat iMin{ cv::Mat::zeros(image.rows, image.cols, CV_8UC1) };
+	cv::erode(image, iMin, kernel);
+	cv::Mat iMax{ cv::Mat::zeros(image.rows, image.cols, CV_8UC1) };
+	cv::dilate(image, iMax, kernel);
+	cv::Mat diff{ iMax - iMin };
+	cv::threshold(diff, diff, cmin, max, cv::THRESH_BINARY_INV);
+	binary = image > (diff | ((iMin + iMax) / 2));
 
 	return binary;
 }
 
+cv::Mat add_gaussian_noise(const cv::Mat& image, const double std_dev) {
+	cv::Mat noisy_image;
+	cv::Mat noise(image.size(), CV_32FC1);
+	cv::randn(noise, 0, std_dev);
+
+	image.convertTo(noisy_image, CV_32FC1);
+	noisy_image += noise;
+	noisy_image.convertTo(noisy_image, CV_8UC1);
+
+	return noisy_image;
+}
 
 cv::Mat generateImage(const int& countCircles, int minRadius, int maxRadius, int minContrast, int maxContrast, int blur) {
 	int side_length = 4 * maxRadius * (countCircles - 1);
@@ -79,10 +72,13 @@ cv::Mat generateImage(const int& countCircles, int minRadius, int maxRadius, int
 		contrast = minContrast;
 		radius += (maxRadius - minRadius) / countCircles;
 	}
-
+	
 	cv::GaussianBlur(image, image, cv::Size(blur * 2 + 1, blur * 2 + 1), 0);
 
-	return image;
+	cv::Mat result;
+	result = add_gaussian_noise(image, blur);
+
+	return result;
 }
 
 void onTrackbar(int, void*) {}
@@ -117,18 +113,18 @@ int main(int argc, char* argv[]) {
 	cv::Mat binaryImage;
 
 	if (method == 1) {
-		int windowSize = 1;
-		int contrastThreshold = 1;
+		int radius = 1;
+		int cmin = 0;
 
 		cv::namedWindow("Binary Image");
-		cv::createTrackbar("Window Size", "Binary Image", &windowSize, 30, onTrackbar);
-		cv::setTrackbarMin("Window Size", "Binary Image", windowSize);
-		cv::createTrackbar("Contrast Threshold", "Binary Image", &contrastThreshold, 255, onTrackbar);
-		cv::setTrackbarMin("Contrast Threshold", "Binary Image", contrastThreshold);
+		cv::createTrackbar("Radius", "Binary Image", &radius, 30, onTrackbar);
+		cv::setTrackbarMin("Radius", "Binary Image", radius);
+		cv::createTrackbar("CMin", "Binary Image", &cmin, 255, onTrackbar);
+		cv::setTrackbarMin("CMin", "Binary Image", cmin);
 		onTrackbar(0, 0);
 
 		while (true) {
-			binaryImage = bernsenBinary(image, windowSize, contrastThreshold);
+			binaryImage = bernsenBinary(image, radius, cmin);
 			imshow("Binary Image", binaryImage);
 
 			char key = cv::waitKey(10);
@@ -138,19 +134,22 @@ int main(int argc, char* argv[]) {
 	
 	}
 	else if (method == 2){
-		int windowSize = 1;
-		double k = -10;
+		int radius = 1;
+		int k = 0;
+		int d = 0;
 
 		cv::namedWindow("Binary Image");
-		cv::createTrackbar("Window Size", "Binary Image", &windowSize, 15, onTrackbar);
-		cv::setTrackbarMin("Window Size", "Binary Image", windowSize);
-		cv::createTrackbar("k Value", "Binary Image", nullptr, 0, onTrackbar);
+		cv::createTrackbar("Window Size", "Binary Image", &radius, 30, onTrackbar);
+		cv::setTrackbarMin("Window Size", "Binary Image", radius);
+		cv::createTrackbar("k Value", "Binary Image", &k, 255, onTrackbar);
 		cv::setTrackbarMin("k Value", "Binary Image", k);
+		cv::createTrackbar("d Value", "Binary Image", &d, 255, onTrackbar);
+		cv::setTrackbarMin("d Value", "Binary Image", d);
 		onTrackbar(0, 0);
 
 		while (true) {
-			k = static_cast<double>(cv::getTrackbarPos("k Value", "Binary Image")) / 5.0;
-			binaryImage = niblackBinary(image, windowSize, k);
+			k = static_cast<double>(cv::getTrackbarPos("k Value", "Binary Image")) / 10.0;
+			binaryImage = niblackBinary(image, radius, k, d);
 			imshow("Binary Image", binaryImage);
 
 			char key = cv::waitKey(10);
