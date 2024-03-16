@@ -20,7 +20,7 @@ cv::Mat PeronaMalik::PeronaMalikGray() {
     cv::Mat I2 = Imog_;
     int rows = Imog_.size().height;
     int cols = Imog_.size().width;
-    double k = 40;
+    double k = 8;
     for (int i = 1; i <= T_; i++) {
         std::vector<int> av(5);
         for (int col = 0; col < cols; col++) {
