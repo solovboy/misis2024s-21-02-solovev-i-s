@@ -1,16 +1,22 @@
 # Отчет по 3 ЛР
 
+### Цель
+
+Научиться созданию и примененнию функций автоконтрастирования черно-белых и цветных изображений по квантилям.
+
+### Ход работы
+
 В рамках второй лабораторной работы были реализовано консольное приложение с функциями для автоконтрастирования черно-белых и цветных изображений по квантилям.
 
 Были взяты тестовые изображения:
 
 Черно-белое:
 
-![bw](bw.png "bw")
+![bw](assets/bw.png "bw")
 
 Цветное:
 
-![bgr](bgr.png "bgr")
+![bgr](assets/bgr.png "bgr")
 
 Для автоконтрастирования цветных изображений требуется контрастировать отдельно три канала BGR, а потом соединять их в одно изображение.
 
@@ -30,12 +36,12 @@ q0 и q1 - квантили. Дефолтные значения квантилей 0.3 и 0.7 соответственно.
 
 Черно-белое при q0 = 0.3 и q1 = 0.7:
 
-![ImagesBW](ImagesBW.png "ImagesBW")
+![ImagesBW](assets/ImagesBW.png "ImagesBW")
 
-![HistogramsBW](HistogramsBW.png "HistogramsBW")
+![HistogramsBW](assets/HistogramsBW.png "HistogramsBW")
 
 Цветное при при q0 = 0.4 и q1 = 0.6:
 
-![ImagesBGR](ImagesBGR.png "ImagesBGR")
+![ImagesBGR](assets/ImagesBGR.png "ImagesBGR")
 
-![HistogramsBGR](HistogramsBGR.png "HistogramsBGR")
+![HistogramsBGR](assets/HistogramsBGR.png "HistogramsBGR")
