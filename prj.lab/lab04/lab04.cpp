@@ -1,5 +1,5 @@
 #include <iostream>
-#include <omp.h>
+#include <string>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
 	int minContrast = 50;
 	int maxContrast = 255;
 	int blur = 4;
-	int method = 0;
+	std::string method = "bernsen";
 
 	if (argc >= 7) {
 		countCircles = std::stoi(argv[1]);
@@ -100,19 +100,14 @@ int main(int argc, char* argv[]) {
 		minContrast = std::stoi(argv[4]);
 		maxContrast = std::stoi(argv[5]);
 		blur = std::stoi(argv[6]);
-		method = std::stoi(argv[7]);
+		method = argv[7];
 	}
 
 	cv::Mat image = generateImage(countCircles, minRadius, maxRadius, minContrast, maxContrast, blur);
 
-
-	//cv::Mat binaryBernsen = bernsenBinary(image, 3, 3);
-
-	//cv::Mat binaryNiblack = niblackBinary(image, 2, -1);
-
 	cv::Mat binaryImage;
 
-	if (method == 1) {
+	if (method == "bernsen") {
 		int radius = 1;
 		int cmin = 0;
 
@@ -133,14 +128,14 @@ int main(int argc, char* argv[]) {
 		}
 	
 	}
-	else if (method == 2){
+	else if (method == "niblack") {
 		int radius = 1;
 		int k = 0;
 		int d = 0;
 
 		cv::namedWindow("Binary Image");
-		cv::createTrackbar("Window Size", "Binary Image", &radius, 30, onTrackbar);
-		cv::setTrackbarMin("Window Size", "Binary Image", radius);
+		cv::createTrackbar("Radius", "Binary Image", &radius, 30, onTrackbar);
+		cv::setTrackbarMin("Radius", "Binary Image", radius);
 		cv::createTrackbar("k Value", "Binary Image", &k, 255, onTrackbar);
 		cv::setTrackbarMin("k Value", "Binary Image", k);
 		cv::createTrackbar("d Value", "Binary Image", &d, 255, onTrackbar);
@@ -157,8 +152,10 @@ int main(int argc, char* argv[]) {
 				break;
 		}
 	}
-	else {
-		binaryImage = bernsenBinary(image, 12, 34);
+	else if (method == "detection") {
+		//binaryImage = bernsenBinary(image, 14, 40);
+		binaryImage = niblackBinary(image, 24, 0.90, 18);
+		
 		// Search for circles in the image
 		std::vector<cv::Vec3f> circles;
 		cv::HoughCircles(binaryImage, circles, cv::HOUGH_GRADIENT, 1,
