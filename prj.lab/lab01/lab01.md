@@ -14,10 +14,18 @@
 
 Для запуска консольного приложения, нужно найти исполняемый файл в вашей директории и прописать в консоль:
 
-```.\lab01.exe s h gamma <Путь сохранения файла>```
+```.\lab01.exe <s> <h> <gamma> <Путь сохранения файла>```
 
 ### Вывод
 
-При s=3, h=30, gamma=2.4
+При s=3, h=30, gamma=2.4:
 
-![lab01](assets/lab01.png "lab01")
+![example1](assets/example1.png "example1")
+
+При s=4, h=45, gamma=3.0:
+
+![example2](assets/example2.png "example2")
+
+При s=2, h=45, gamma=1.5:
+
+![example3](assets/example3.png "example3")
