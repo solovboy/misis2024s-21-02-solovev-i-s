@@ -158,16 +158,17 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	else {
+		binaryImage = bernsenBinary(image, 12, 34);
 		// Search for circles in the image
 		std::vector<cv::Vec3f> circles;
-		cv::HoughCircles(image, circles, cv::HOUGH_GRADIENT, 1,
-			(image.rows - image.rows / 5) / (countCircles - 1), 
+		cv::HoughCircles(binaryImage, circles, cv::HOUGH_GRADIENT, 1,
+			(binaryImage.rows - binaryImage.rows / 5) / (countCircles - 1),
 			100, 10,       
 			minRadius, maxRadius);  
 
 		// Drawing detected circles
 		cv::Mat detected_circles_image;
-		cv::cvtColor(image, detected_circles_image, cv::COLOR_GRAY2BGR); 
+		cv::cvtColor(image, detected_circles_image, cv::COLOR_GRAY2BGR);
 		for (size_t i = 0; i < circles.size(); i++)
 		{
 			cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
@@ -175,10 +176,11 @@ int main(int argc, char* argv[]) {
 
 			cv::circle(detected_circles_image, center, 3, cv::Scalar(0, 255, 0), -1, 1);
 
-			cv::circle(detected_circles_image, center, radius, cv::Scalar(0, 0, 255), 1, 1);
+			cv::circle(detected_circles_image, center, radius, cv::Scalar(0, 0, 255), 2, 1);
 		}
 
 		cv::imshow("Original Image", image);
+		cv::imshow("Binary Image", binaryImage);
 		cv::imshow("Detected Circles", detected_circles_image);
 		cv::waitKey(0);
 	}
