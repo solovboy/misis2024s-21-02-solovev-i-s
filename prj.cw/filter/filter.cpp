@@ -9,18 +9,19 @@ PeronaMalik::PeronaMalik() {
     cv::Mat Imog_;
     double a_ = 0;
     int T_ = 0;
+    double k_ = 1;
 }
-PeronaMalik::PeronaMalik(cv::Mat Imog, double a, int T) {
+PeronaMalik::PeronaMalik(cv::Mat Imog, double a, int T, double k) {
     Imog_ = Imog;
     a_ = a;
     T_ = T;
+    k_ = k;
 }
 
 cv::Mat PeronaMalik::PeronaMalikGray() {
     cv::Mat I2 = Imog_;
     int rows = Imog_.size().height;
     int cols = Imog_.size().width;
-    double k = 8;
     for (int i = 1; i <= T_; i++) {
         std::vector<int> av(5);
         for (int col = 0; col < cols; col++) {
@@ -41,7 +42,7 @@ cv::Mat PeronaMalik::PeronaMalikGray() {
                 double grad = 0;
                 for (int i = 1; i < 5; i = i + 1) {
                     double difference = av[i] - av[0];
-                    grad = grad + conductivity_function(difference, k) * difference;
+                    grad = grad + conductivity_function(difference, k_) * difference;
                 }
                 I2.at<uchar>(row, col) = Imog_.at<uchar>(row, col) + a_ * grad;
             }
