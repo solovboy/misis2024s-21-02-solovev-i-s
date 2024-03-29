@@ -42,7 +42,7 @@ $$
 
 ![filtered](assets/filtered.png "filtered")
 
-Каналы итогового изображения:
+Каналы для итогового RGB изображения:
 
 ![channels](assets/channels.png "channels")
 
