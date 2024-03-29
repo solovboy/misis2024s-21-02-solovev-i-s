@@ -6,7 +6,46 @@
 #include <exception>
 #include <string>
 
+double getSSIM(const cv::Mat& image_ref, const cv::Mat& image_obj)
+{
+    double C1 = 6.5025, C2 = 58.5225;
 
+    int width = image_ref.cols;
+    int height = image_ref.rows;
+    double mean_x = 0;
+    double mean_y = 0;
+    double sigma_x = 0;
+    double sigma_y = 0;
+    double sigma_xy = 0;
+    for (int v = 0; v < height; v++)
+    {
+        for (int u = 0; u < width; u++)
+        {
+            mean_x += image_ref.at<uchar>(v, u);
+            mean_y += image_obj.at<uchar>(v, u);
+
+        }
+    }
+    mean_x = mean_x / width / height;
+    mean_y = mean_y / width / height;
+    for (int v = 0; v < height; v++)
+    {
+        for (int u = 0; u < width; u++)
+        {
+            sigma_x += (image_ref.at<uchar>(v, u) - mean_x) * (image_ref.at<uchar>(v, u) - mean_x);
+            sigma_y += (image_obj.at<uchar>(v, u) - mean_y) * (image_obj.at<uchar>(v, u) - mean_y);
+            sigma_xy += abs((image_ref.at<uchar>(v, u) - mean_x) * (image_obj.at<uchar>(v, u) - mean_y));
+        }
+    }
+    sigma_x = sigma_x / (width * height - 1);
+    sigma_y = sigma_y / (width * height - 1);
+    sigma_xy = sigma_xy / (width * height - 1);
+    double fenzi = (2 * mean_x * mean_y + C1) * (2 * sigma_xy + C2);
+    double fenmu = (mean_x * mean_x + mean_y * mean_y + C1) * (sigma_x + sigma_y + C2);
+    double ssim = fenzi / fenmu;
+    return ssim;
+
+}
 double getPSNR(const cv::Mat& I1, const cv::Mat& I2)
 {
     cv::Mat s1;
@@ -32,7 +71,7 @@ int main(int argc, char* argv[]) {
         std::string file_path = "C:/Users/Иван/misis2024s-21-02-solovev-i-s/prj.cw/livingroom.png";
         double a = 0.2;
         int T = 10;
-        double k = 12;
+        double k = 8;
         if (argc >= 5) {
             file_path = argv[1];
             a = std::stof(argv[2]);
@@ -48,7 +87,24 @@ int main(int argc, char* argv[]) {
         PeronaMalik image(I1, a, T, k);
         cv::Mat Processed_image = image.PeronaMalikGray();
 
-        double getpsnr = getPSNR(I, Processed_image);
+        double psnr = getPSNR(I, Processed_image);
+
+        double msSSIM = 0;
+        int levels = 5;
+        for (int i = 0; i < levels; i++) {
+            cv::Mat resizedI1, resizedI2;
+            cv::resize(I, resizedI1, cv::Size(), pow(2, i), pow(2, i));
+            cv::resize(Processed_image, resizedI2, cv::Size(), pow(2, i), pow(2, i));
+            msSSIM += getSSIM(resizedI1, resizedI2);
+
+        }
+        msSSIM /= levels;
+
+        std::cout << " "<< std::endl;
+        std::cout << "PSNR: " << psnr << std::endl;
+        std::cout << " " << std::endl;
+        std::cout << "MS SSIM: " << msSSIM << std::endl;
+        std::cout << " " << std::endl;
 
         cv::imshow("Original image", I);
         cv::imshow("Processed image", Processed_image);
