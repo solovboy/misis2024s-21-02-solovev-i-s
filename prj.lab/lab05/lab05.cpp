@@ -76,7 +76,7 @@ int main() {
 	{
 		r[i].convertTo(r[i], CV_8UC3, 0.5, 127);
 	}
-	r[2] = r[2] / sqrt(2);
+	r[2] = r[2] / sqrt(8);
 
 	cv::imshow("r1", r[0]);
 	cv::imshow("r2", r[1]);
