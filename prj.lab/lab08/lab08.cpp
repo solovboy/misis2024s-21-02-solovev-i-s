@@ -44,7 +44,7 @@ cv::Mat getProj(const std::vector<cv::Point2f>& points, const int size) {
 int main(int argc, char* argv[]) {
     
     std::string input = "C:/Users/Иван/misis2024s-21-02-solovev-i-s/prj.lab/lab08/assets/rgb.png";
-    std::string output = "C:/Users/Иван/misis2024s-21-02-solovev-i-s/prj.lab/lab08/assets/result2.png";
+    std::string output = "C:/Users/Иван/misis2024s-21-02-solovev-i-s/prj.lab/lab08/assets/resultx.png";
     int size = 256;
     if (argc >= 4) {
         input = argv[1];
@@ -61,7 +61,6 @@ int main(int argc, char* argv[]) {
     result.convertTo(result, CV_8UC1, std::numeric_limits<uchar>::max());
 
     cv::imwrite(output, result);
-
     cv::imshow("orig", img);
     cv::imshow("result", result);
     cv::waitKey(0);
