@@ -40,7 +40,7 @@ q0 и q1 - квантили. Дефолтные значения квантилей 0.3 и 0.7 соответственно.
 
 ![HistogramsBW](assets/HistogramsBW.png "HistogramsBW")
 
-Цветное при при q0 = 0.4 и q1 = 0.6:
+Цветное при q0 = 0.4 и q1 = 0.6:
 
 ![ImagesBGR](assets/ImagesBGR.png "ImagesBGR")
 
