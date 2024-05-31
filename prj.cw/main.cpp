@@ -81,11 +81,11 @@ cv::Mat addNoise(const cv::Mat& image, const double std_dev) {
 int main(int argc, char* argv[]) {
     try {
         std::string file_path = "C:/Users/Иван/misis2024s-21-02-solovev-i-s/prj.cw/dataset/text.png";
-        double noise = 1;
-        double a = 0.4;
-        int T = 15;
+        double noise = 0;
+        double a = 0.1;
+        int T = 12;
         double k = 8;
-        std::string method= "dGauss";
+        std::string method= "Gauss";
         int kernel = 3;
         if (argc >= 8) {
             file_path = argv[1];
