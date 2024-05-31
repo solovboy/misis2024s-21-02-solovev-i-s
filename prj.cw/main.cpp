@@ -68,10 +68,10 @@ double getPSNR(const cv::Mat& I1, const cv::Mat& I2)
 
 int main(int argc, char* argv[]) {
     try {
-        std::string file_path = "C:/Users/Иван/misis2024s-21-02-solovev-i-s/prj.cw/livingroom.png";
+        std::string file_path = "C:/Users/Иван/misis2024s-21-02-solovev-i-s/prj.cw/dataset/text.png";
         double a = 0.2;
-        int T = 10;
-        double k = 8;
+        int T = 12;
+        double k = 16;
         if (argc >= 5) {
             file_path = argv[1];
             a = std::stof(argv[2]);
@@ -84,30 +84,41 @@ int main(int argc, char* argv[]) {
         
         const cv::Mat I = cv::imread(file_path, cv::IMREAD_GRAYSCALE);
         cv::Mat I1 = cv::imread(file_path, cv::IMREAD_GRAYSCALE);
+        cv::Mat Gaus;
+        cv::GaussianBlur(I1, Gaus, cv::Size(3, 3), 10);
         PeronaMalik image(I1, a, T, k);
         cv::Mat Processed_image = image.PeronaMalikGray();
 
-        double psnr = getPSNR(I, Processed_image);
+        double psnrP = getPSNR(I, Processed_image);
+        double psnrG = getPSNR(I, Gaus);
 
-        double msSSIM = 0;
+        double msSSIMP = 0;
+        double msSSIMG = 0;
         int levels = 5;
         for (int i = 0; i < levels; i++) {
             cv::Mat resizedI1, resizedI2;
             cv::resize(I, resizedI1, cv::Size(), pow(2, i), pow(2, i));
+
             cv::resize(Processed_image, resizedI2, cv::Size(), pow(2, i), pow(2, i));
-            msSSIM += getSSIM(resizedI1, resizedI2);
+            msSSIMP += getSSIM(resizedI1, resizedI2);
+
+           
+            cv::resize(Gaus, resizedI2, cv::Size(), pow(2, i), pow(2, i));
+            msSSIMG += getSSIM(resizedI1, resizedI2);
 
         }
-        msSSIM /= levels;
+        msSSIMP /= levels;
+        msSSIMG /= levels;
 
         std::cout << " "<< std::endl;
-        std::cout << "PSNR: " << psnr << std::endl;
+        std::cout << "PSNR: " << psnrP << "  " << psnrG << std::endl;
         std::cout << " " << std::endl;
-        std::cout << "MS SSIM: " << msSSIM << std::endl;
+        std::cout << "MS SSIM: " << msSSIMP << "  " << msSSIMG << std::endl;
         std::cout << " " << std::endl;
 
         cv::imshow("Original image", I);
         cv::imshow("Processed image", Processed_image);
+        cv::imshow("Gaus", Gaus);
         cv::waitKey(0);
 
     }
