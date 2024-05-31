@@ -66,44 +66,78 @@ double getPSNR(const cv::Mat& I1, const cv::Mat& I2)
     }
 }
 
+cv::Mat addNoise(const cv::Mat& image, const double std_dev) {
+    cv::Mat noisy_image;
+    cv::Mat noise(image.size(), CV_32FC1);
+    cv::randn(noise, 0, std_dev);
+
+    image.convertTo(noisy_image, CV_32FC1);
+    noisy_image += noise;
+    noisy_image.convertTo(noisy_image, CV_8UC1);
+
+    return noisy_image;
+}
+
 int main(int argc, char* argv[]) {
     try {
         std::string file_path = "C:/Users/Иван/misis2024s-21-02-solovev-i-s/prj.cw/dataset/text.png";
-        double a = 0.2;
-        int T = 12;
-        double k = 16;
-        if (argc >= 5) {
+        double noise = 1;
+        double a = 0.4;
+        int T = 15;
+        double k = 8;
+        std::string method= "dGauss";
+        int kernel = 3;
+        if (argc >= 8) {
             file_path = argv[1];
-            a = std::stof(argv[2]);
-            T = std::stoi(argv[3]);
-            k = std::stof(argv[4]);
+            noise = std::stof(argv[2]);
+            a = std::stof(argv[3]);
+            T = std::stoi(argv[4]);
+            k = std::stof(argv[5]);
+            method = argv[6];
+            kernel = std::stoi(argv[7]);
         }
         else if (argc != 1) {
             throw argc;
         }
         
-        const cv::Mat I = cv::imread(file_path, cv::IMREAD_GRAYSCALE);
-        cv::Mat I1 = cv::imread(file_path, cv::IMREAD_GRAYSCALE);
-        cv::Mat Gaus;
-        cv::GaussianBlur(I1, Gaus, cv::Size(3, 3), 10);
-        PeronaMalik image(I1, a, T, k);
-        cv::Mat Processed_image = image.PeronaMalikGray();
+        const cv::Mat I = addNoise(cv::imread(file_path, cv::IMREAD_GRAYSCALE), noise);
+        cv::Mat I1 = addNoise(cv::imread(file_path, cv::IMREAD_GRAYSCALE), noise);
 
-        double psnrP = getPSNR(I, Processed_image);
-        double psnrG = getPSNR(I, Gaus);
+        cv::Mat methodImage;
+        if (method == "Gauss") {
+            cv::GaussianBlur(I1, methodImage, cv::Size(kernel, kernel), 0);
+        }
+        else if (method == "DefaultBlur") {
+            cv::blur(I1, methodImage, cv::Size(kernel, kernel));
+        }
+        else if (method == "Median") {
+            cv::medianBlur(I1, methodImage, kernel);
+        }
+        else if (method == "Bilateral") {
+            cv::bilateralFilter(I1, methodImage, kernel, kernel * 2, kernel / 2);
+        }
+        else {
+            throw std::invalid_argument("Unsupported blur method. ");
+        }
+
+        PeronaMalik image(I1, a, T, k);
+        cv::Mat peronaImage = image.PeronaMalikGray();
+
+        double psnrP = getPSNR(I, peronaImage);
+        double psnrG = getPSNR(I, methodImage);
 
         double msSSIMP = 0;
         double msSSIMG = 0;
-        int levels = 5;
+        int levels = 3;
         for (int i = 0; i < levels; i++) {
             cv::Mat resizedI1, resizedI2;
             cv::resize(I, resizedI1, cv::Size(), pow(2, i), pow(2, i));
 
-            cv::resize(Processed_image, resizedI2, cv::Size(), pow(2, i), pow(2, i));
+            cv::resize(peronaImage, resizedI2, cv::Size(), pow(2, i), pow(2, i));
             msSSIMP += getSSIM(resizedI1, resizedI2);
 
            
-            cv::resize(Gaus, resizedI2, cv::Size(), pow(2, i), pow(2, i));
+            cv::resize(methodImage, resizedI2, cv::Size(), pow(2, i), pow(2, i));
             msSSIMG += getSSIM(resizedI1, resizedI2);
 
         }
@@ -116,15 +150,19 @@ int main(int argc, char* argv[]) {
         std::cout << "MS SSIM: " << msSSIMP << "  " << msSSIMG << std::endl;
         std::cout << " " << std::endl;
 
-        cv::imshow("Original image", I);
-        cv::imshow("Processed image", Processed_image);
-        cv::imshow("Gaus", Gaus);
+        cv::imshow("Original", I);
+        cv::imshow("Perona&Malik", peronaImage);
+        cv::imshow(method, methodImage);
         cv::waitKey(0);
 
     }
-    catch (int argc) {
+    catch (const int argc) {
         std::cout << "Incorrect numbers of arguments" << std::endl;
-        std::cerr << "Error: Not enough arguments. Usage: " << argv[0] << "<input_file_path> <a(update rate)> <T(number of iterations)> <k(sensitivity coefficient)>" << std::endl;
+        std::cerr << "Error: Not enough arguments. Usage: " << argv[0] << "<input_file_path> <noise> <a(update rate)> <T(number of iterations)> <k(sensitivity coefficient)> <method(second filter)> <kernel>" << std::endl;
+    }
+    catch (const std::invalid_argument& e) {
+        std::cout << "Incorrect blur method" << std::endl;
+        std::cerr << "Error: "<< e.what() << "You can use only : Gauss, DefaultBlur, Median, Bilateral"<< std::endl;
     }
 
 }
