@@ -6,22 +6,22 @@
 #include <vector>
 
 PeronaMalik::PeronaMalik() {
-    cv::Mat Imog_;
+    cv::Mat Img_;
     double a_ = 0;
     int T_ = 0;
     double k_ = 1;
 }
-PeronaMalik::PeronaMalik(cv::Mat Imog, double a, int T, double k) {
-    Imog_ = Imog;
+PeronaMalik::PeronaMalik(cv::Mat Img, double a, int T, double k) {
+    Img_ = Img;
     a_ = a;
     T_ = T;
     k_ = k;
 }
 
 cv::Mat PeronaMalik::PeronaMalikGray() {
-    cv::Mat I2 = Imog_;
-    int rows = Imog_.size().height;
-    int cols = Imog_.size().width;
+    cv::Mat I2 = Img_;
+    int rows = Img_.size().height;
+    int cols = Img_.size().width;
     for (int i = 1; i <= T_; i++) {
         std::vector<int> av(5);
         for (int col = 0; col < cols; col++) {
@@ -29,11 +29,11 @@ cv::Mat PeronaMalik::PeronaMalikGray() {
                 if (col == 0 || col == cols - 1 || row == 0 || row == rows - 1) {
                     continue;
                 }
-                double a_middle = Imog_.at<uchar>(row, col);
-                double a_right = Imog_.at<uchar>(row, col + 1);
-                double a_left = Imog_.at<uchar>(row, col - 1);
-                double a_up = Imog_.at<uchar>(row + 1, col);
-                double a_down = Imog_.at<uchar>(row - 1, col);
+                double a_middle = Img_.at<uchar>(row, col);
+                double a_right = Img_.at<uchar>(row, col + 1);
+                double a_left = Img_.at<uchar>(row, col - 1);
+                double a_up = Img_.at<uchar>(row + 1, col);
+                double a_down = Img_.at<uchar>(row - 1, col);
                 av[0] = a_middle;
                 av[1] = a_right;
                 av[2] = a_left;
@@ -44,7 +44,7 @@ cv::Mat PeronaMalik::PeronaMalikGray() {
                     double difference = av[i] - av[0];
                     grad = grad + conductivity_function(difference, k_) * difference;
                 }
-                I2.at<uchar>(row, col) = Imog_.at<uchar>(row, col) + a_ * grad;
+                I2.at<uchar>(row, col) = Img_.at<uchar>(row, col) + a_ * grad;
             }
         }
     }
