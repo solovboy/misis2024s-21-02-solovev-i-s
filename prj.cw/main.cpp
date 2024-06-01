@@ -123,31 +123,31 @@ int main(int argc, char* argv[]) {
         PeronaMalik image(I1, a, T, k);
         cv::Mat peronaImage = image.PeronaMalikGray();
 
-        double psnrP = getPSNR(I, peronaImage);
-        double psnrG = getPSNR(I, methodImage);
+        double psnr1 = getPSNR(I, peronaImage);
+        double psnr2 = getPSNR(I, methodImage);
 
-        double msSSIMP = 0;
-        double msSSIMG = 0;
+        double msSSIM1 = 0;
+        double msSSIM2 = 0;
         int levels = 3;
         for (int i = 0; i < levels; i++) {
             cv::Mat resizedI1, resizedI2;
             cv::resize(I, resizedI1, cv::Size(), pow(2, i), pow(2, i));
 
             cv::resize(peronaImage, resizedI2, cv::Size(), pow(2, i), pow(2, i));
-            msSSIMP += getSSIM(resizedI1, resizedI2);
+            msSSIM1 += getSSIM(resizedI1, resizedI2);
 
            
             cv::resize(methodImage, resizedI2, cv::Size(), pow(2, i), pow(2, i));
-            msSSIMG += getSSIM(resizedI1, resizedI2);
+            msSSIM2 += getSSIM(resizedI1, resizedI2);
 
         }
-        msSSIMP /= levels;
-        msSSIMG /= levels;
+        msSSIM1 /= levels;
+        msSSIM2 /= levels;
 
         std::cout << " "<< std::endl;
-        std::cout << "PSNR: " << psnrP << "  " << psnrG << std::endl;
+        std::cout << "PSNR: " << psnr1 << "  " << psnr2 << std::endl;
         std::cout << " " << std::endl;
-        std::cout << "MS SSIM: " << msSSIMP << "  " << msSSIMG << std::endl;
+        std::cout << "MS SSIM: " << msSSIM1 << "  " << msSSIM2 << std::endl;
         std::cout << " " << std::endl;
 
         cv::imshow("Original", I);
