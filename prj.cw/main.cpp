@@ -80,10 +80,10 @@ cv::Mat addNoise(const cv::Mat& image, const double std_dev) {
 
 int main(int argc, char* argv[]) {
     try {
-        std::string file_path = "C:/Users/Иван/misis2024s-21-02-solovev-i-s/prj.cw/dataset/text.png";
+        std::string file_path = "C:/Users/Иван/misis2024s-21-02-solovev-i-s/prj.cw/dataset/livingroom.png";
         double noise = 0;
-        double a = 0.1;
-        int T = 12;
+        double a = 0.2;
+        int T = 10;
         double k = 8;
         std::string method= "Gauss";
         int kernel = 3;
@@ -112,9 +112,6 @@ int main(int argc, char* argv[]) {
         }
         else if (method == "Median") {
             cv::medianBlur(I1, methodImage, kernel);
-        }
-        else if (method == "Bilateral") {
-            cv::bilateralFilter(I1, methodImage, kernel, kernel * 2, kernel / 2);
         }
         else {
             throw std::invalid_argument("Unsupported blur method. ");
@@ -162,7 +159,7 @@ int main(int argc, char* argv[]) {
     }
     catch (const std::invalid_argument& e) {
         std::cout << "Incorrect blur method" << std::endl;
-        std::cerr << "Error: "<< e.what() << "You can use only : Gauss, DefaultBlur, Median, Bilateral"<< std::endl;
+        std::cerr << "Error: "<< e.what() << "You can use only : Gauss, DefaultBlur, Median"<< std::endl;
     }
 
 }
