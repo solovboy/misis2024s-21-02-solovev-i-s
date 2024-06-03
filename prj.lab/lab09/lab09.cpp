@@ -19,14 +19,15 @@ cv::Mat contrast(const cv::Mat& img) {
 }
 
 int main(int argc, char* argv[]) {
-    std::string input = "C:/Users/Иван/misis2024s-21-02-solovev-i-s/prj.lab/lab09/assets/bgr.png";
-    std::string output = "C:/Users/Иван/misis2024s-21-02-solovev-i-s/prj.lab/lab09/assets/result.png";
+    std::string input = "C:/Users/Иван/misis2024s-21-02-solovev-i-s/prj.lab/lab09/assets/bgr2.png";
+    std::string output = "C:/Users/Иван/misis2024s-21-02-solovev-i-s/prj.lab/lab09/assets/result2.png";
     if (argc >= 3) {
         input = argv[1];
         output = argv[2];
     }
     cv::Mat img{ cv::imread(input) };
     cv::Mat result{ contrast(img) };
+    cv::imwrite(output, result);
     cv::imshow("original", img);
     cv::imshow("result", result);
     cv::waitKey(0);
