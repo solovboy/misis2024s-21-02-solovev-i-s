@@ -18,6 +18,8 @@
 2.
 ![rgb2](assets/rgb2.png "rgb2")
 
+3. Изображение из всех возможных цветов
+
 
 ### Работа консольного приложения
 
@@ -42,3 +44,6 @@ size - Размер изображения
 
 2.
 ![result2](assets/result2.png "result2")
+
+3.
+![result3](assets/result3.png "result3")
