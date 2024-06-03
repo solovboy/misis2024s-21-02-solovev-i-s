@@ -20,6 +20,8 @@
 
 ![bernsenDetection](assets/bernsenDetection.png "bernsenDetection")
 
+![bernsenkQuality](assets/bernsenQuality.png "bernsenQuality")
+
 Бинаризация исходного изображения методом Ниблека:
 
 ![niblack](assets/niblack.png "niblack")
@@ -27,6 +29,8 @@
 Детектирование при параметрах Radius = 24, k Value = 9, d Value = 18:
 
 ![niblackDetection](assets/niblackDetection.png "niblackDetection")
+
+![niblackQuality](assets/niblackQuality.png "niblackQuality")
 
 ### Работа консольного приложения
 
