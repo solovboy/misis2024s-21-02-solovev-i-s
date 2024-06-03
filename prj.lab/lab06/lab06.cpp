@@ -4,6 +4,39 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
 
+std::vector<cv::Vec3f> groundTruths;
+
+void evaluateDetections(const std::vector<cv::Vec3f>& detections, const std::vector<cv::Vec3f>& groundTruths, double iouThreshold) {
+	int TP = 0, FP = 0, FN = 0;
+
+	for (const auto& truth : groundTruths) {
+		bool detected = false;
+		cv::Point truthCenter(cvRound(truth[0]), cvRound(truth[1]));
+		int truthRadius = cvRound(truth[2]);
+
+		for (const auto& detection : detections) {
+			cv::Point detectCenter(cvRound(detection[0]), cvRound(detection[1]));
+			int detectRadius = cvRound(detection[2]);
+
+			double distance = cv::norm(truthCenter - detectCenter);
+			double radiusSum = truthRadius + detectRadius;
+			double iou = (distance <= radiusSum) ? 1.0 : 0.0; // Упростим вычисление IoU
+
+			if (iou >= iouThreshold) {
+				TP++;
+				detected = true;
+				break;
+			}
+		}
+		if (!detected) FN++;
+	}
+
+	FP = detections.size() - TP;
+
+	std::cout << "TP: " << TP << std::endl;
+	std::cout << "FP: " << FP << std::endl;
+	std::cout << "FN: " << FN << std::endl;
+}
 
 cv::Mat niblackBinary(const cv::Mat& image, const int radius, const int k, const int d) {
 	cv::Mat binary;
@@ -67,6 +100,7 @@ cv::Mat generateImage(const int& countCircles, int minRadius, int maxRadius, int
 		for (int j = side_length / 10; j <= (side_length - side_length / 10); j += (side_length - side_length / 5) / (countCircles - 1)) {
 			cv::Point center(i, j);
 			cv::circle(image, center, radius, cv::Scalar(contrast), -1);
+			groundTruths.push_back(cv::Vec3f(i, j, radius));
 			contrast += (maxContrast - minContrast) / countCircles;
 		}
 		contrast = minContrast;
@@ -91,7 +125,7 @@ int main(int argc, char* argv[]) {
 	int minContrast = 50;
 	int maxContrast = 255;
 	int blur = 4;
-	std::string method = "bernsen";
+	std::string method = "detection";
 
 	if (argc >= 7) {
 		countCircles = std::stoi(argv[1]);
@@ -175,6 +209,9 @@ int main(int argc, char* argv[]) {
 
 			cv::circle(detected_circles_image, center, radius, cv::Scalar(0, 0, 255), 2, 1);
 		}
+
+		double iouThreshold = 0.5; // Порог IoU для считать детекцию TP
+		evaluateDetections(circles, groundTruths, iouThreshold);
 
 		cv::imshow("Original Image", image);
 		cv::imshow("Binary Image", binaryImage);
