@@ -80,7 +80,7 @@ cv::Mat addNoise(const cv::Mat& image, const double std_dev) {
 
 int main(int argc, char* argv[]) {
     try {
-        std::string file_path = "C:/Users/Иван/misis2024s-21-02-solovev-i-s/prj.cw/dataset/livingroom.png";
+        std::string file_path = "../prj.cw/dataset/livingroom.png";
         double noise = 0;
         double a = 0.2;
         int T = 10;
