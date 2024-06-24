@@ -141,6 +141,47 @@ cv::Mat autoContrast(cv::Mat& image, const int& Cmin, const int& Cmax, const int
 	return contrastImage;
 }
 
+void autoContrastTogetherBGR(cv::Mat& image, const double left, const double right) {
+	std::vector<cv::Mat> BGR(3);
+	cv::Mat contrastImage;
+	int Cmin = 0, Cmax = 255;
+
+	cv::split(image, BGR);
+
+	int finalClow = 255, finalChigh = 0;
+	for (int i = 0; i < BGR.size(); i++) {
+		std::vector<int> ClowChigh = searchClowCHigh(BGR[i], left, right);
+		int Clow = ClowChigh[0], Chigh = ClowChigh[1];
+		if (Clow < finalClow) {
+			finalClow = Clow;
+		}
+		if (Chigh < finalChigh) {
+			finalChigh = Chigh;
+		}
+	}
+	std::vector<cv::Mat> contrastChannels;
+	for (int i = 0; i < BGR.size(); i++) {
+		cv::Mat contrastChannel = autoContrast(BGR[i], Cmin, Cmax, finalClow, finalChigh);
+		contrastChannels.push_back(contrastChannel);
+	}
+
+	cv::merge(contrastChannels, contrastImage);
+
+	cv::Mat histogram = drawHistogram(image, left, right);
+	cv::Mat contrastHistogram = drawContrastHistogram(contrastImage, left, right);
+
+	cv::Mat images, histograms;
+	cv::hconcat(image, contrastImage, images);
+	cv::hconcat(histogram, contrastHistogram, histograms);
+
+	cv::imwrite("ImagesTogetherBGR.png", images);
+	cv::imwrite("HistogramsTogetherBGR.png", histograms);
+
+	cv::imshow("ImagesTogetherBGR", images);
+	cv::imshow("HistogramsTogetherBGR", histograms);
+	cv::waitKey(0);
+}
+
 void autoContrastBGR(cv::Mat& image, const double left, const double right) {
 	std::vector<cv::Mat> BGR(3);
 	cv::Mat contrastImage;
@@ -169,6 +210,7 @@ void autoContrastBGR(cv::Mat& image, const double left, const double right) {
 	cv::imshow("HistogramsBGR", histograms);
 	cv::waitKey(0);
 
+
 }
 
 void autoContrastBW(cv::Mat& image, const double left, const double right) {
@@ -191,10 +233,10 @@ void autoContrastBW(cv::Mat& image, const double left, const double right) {
 }
 
 int main(int argc, char* argv[]) {
-	std::string imagePath= "C:/Users/Иван/misis2024s-21-02-solovev-i-s/prj.lab/lab03/test.png";
+	std::string imagePath= "C:/Users/Иван/misis2024s-21-02-solovev-i-s/prj.lab/lab03/assets/bgr.png";
 	cv::Mat image = cv::imread(imagePath, cv::IMREAD_UNCHANGED);
 
-	double left = 0.3, right = 0.7;
+	double left = 0.4, right = 0.6;
 
 	if (argc >= 4) {
 		imagePath = argv[1];
@@ -217,6 +259,7 @@ int main(int argc, char* argv[]) {
 	}
 	else if (image.channels() == 3) {
 		autoContrastBGR(image, left, right);
+		autoContrastTogetherBGR(image, left, right);
 	}
 	else {
 		std::cout << "The program works with 1 and 3 channel images!" << std::endl;

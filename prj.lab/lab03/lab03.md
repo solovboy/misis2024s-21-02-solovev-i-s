@@ -40,8 +40,14 @@ q0 и q1 - квантили. ƒефолтные значени€ квантилей 0.3 и 0.7 соответственно.
 
 ![HistogramsBW](assets/HistogramsBW.png "HistogramsBW")
 
-÷ветное при q0 = 0.4 и q1 = 0.6:
+÷ветное с поканальным автоконтрастированием при q0 = 0.4 и q1 = 0.6:
 
 ![ImagesBGR](assets/ImagesBGR.png "ImagesBGR")
 
 ![HistogramsBGR](assets/HistogramsBGR.png "HistogramsBGR")
+
+÷ветное с совместным автоконтрастированием при q0 = 0.4 и q1 = 0.6:
+
+![ImagesTogetherBGR](assets/ImagesTogetherBGR.png "ImagesTogetherBGR")
+
+![HistogramsTogetherBGR](assets/HistogramsTogetherBGR.png "HistogramsTogetherBGR")
