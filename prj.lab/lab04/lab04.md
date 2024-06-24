@@ -40,13 +40,13 @@
 
 ![example2](assets/example2.png "example2")
 
-Детектирование при параметрах radius = 14, CMin = 40:
+Детектирование при параметрах radius = 14, CMin = 40, бинаризация Бернсена:
 
 ![bernsenDetection2](assets/bernsenDetection2.png "bernsenDetection2")
 
-![bernsenkQuality](assets/bernsenQuality.png "bernsenQuality")
+![bernsenkQuality2](assets/bernsenQuality2.png "bernsenQuality2")
 
-Детектирование при параметрах Radius = 8, k Value = 9, d Value = 7:
+Детектирование при параметрах Radius = 8, k Value = 9, d Value = 7, бинаризация Ниблека:
 
 ![niblackDetection2](assets/niblackDetection2.png "niblackDetection2")
 
@@ -56,13 +56,13 @@
 
 ![example3](assets/example3.png "example3")
 
-Детектирование при параметрах radius = 10, CMin = 30:
+Детектирование при параметрах radius = 10, CMin = 30, бинаризация Бернсена:
 
 ![bernsenDetection3](assets/bernsenDetection3.png "bernsenDetection3")
 
 ![bernsenkQuality3](assets/bernsenQuality3.png "bernsenQuality3")
 
-Детектирование при параметрах Radius = 20, k Value = 9, d Value = 23:
+Детектирование при параметрах Radius = 20, k Value = 9, d Value = 23, бинаризация Ниблека:
 
 ![niblackDetection3](assets/niblackDetection3.png "niblackDetection3")
 
