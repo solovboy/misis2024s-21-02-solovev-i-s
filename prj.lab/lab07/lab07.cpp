@@ -113,10 +113,10 @@ int main() {
     Image img;
 
     generateImage(img);
-    cv::imwrite("example4.png", img.src_image);
+    cv::imwrite("example5.png", img.src_image);
 
     segmentation(img);
-    cv::imwrite("result4.png", img.result);
+    cv::imwrite("result5.png", img.result);
 
     cv::Mat concated, bgr_source_image;
     cv::cvtColor(img.src_image, bgr_source_image, cv::COLOR_GRAY2BGR);

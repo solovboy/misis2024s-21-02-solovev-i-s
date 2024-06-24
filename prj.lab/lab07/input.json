@@ -804,12 +804,12 @@
         ],
         "background": {
             "size": [
-                375,
-                375
+                525,
+                525
             ],
-            "color": 85,
-            "blur": 2.0,
-            "noise": 3.0
+            "color": 25,
+            "blur": 4.0,
+            "noise": 5.0
         }
     }
 }

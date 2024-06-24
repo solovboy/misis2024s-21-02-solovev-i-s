@@ -24,6 +24,14 @@ Edge-Based сегментация - этот метод основывается на том, что границы объектов в 
 
 ![example3](assets/example3.png "example3")
 
+4. size - 525x525, background color = 200, blur = 4.0, noise = 5.0:
+
+![example4](assets/example4.png "example4")
+
+5. size - 525x525, background color = 25, blur = 4.0, noise = 5.0:
+
+![example5](assets/example5.png "example5")
+
 Соответствующие результаты сегментации:
 
 1.
@@ -40,4 +48,14 @@ Edge-Based сегментация - этот метод основывается на том, что границы объектов в 
 |![example3](assets/example3.png "example3") | ![result3](assets/result3.png "result3") |
 
 ![quality3](assets/quality3.png "quality3")
+
+4.
+|![example4](assets/example4.png "example4") | ![result4](assets/result4.png "result4") |
+
+![quality4](assets/quality4.png "quality4")
+
+5.
+|![example5](assets/example5.png "example5") | ![result5](assets/result5.png "result5") |
+
+![quality5](assets/quality5.png "quality5")
 
