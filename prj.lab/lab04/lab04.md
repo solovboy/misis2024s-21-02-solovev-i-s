@@ -8,9 +8,11 @@
 
 В ходе выполнения четвертой лабораторной работы была написана программа, которая генерирует тестовое изображение с заданными параметрами и реализует несколько вариантов бинаризации. Также был предусмотрен режим визуальной настройки параметров бинаризации через GUI, реализован функционал для детектирования объектов на изображении и для оценки качества работы алгоритмов.
 
-Тестовое изображение с параметрами генерации countCircles=10, minRadius=5, maxRadius=15, minContrast=50, maxContrast=255, blur=4:
+1. Изображение с параметрами генерации countCircles=10, minRadius=5, maxRadius=15, minContrast=50, maxContrast=255, blur=4, noise=4:
 
 ![example](assets/example.png "example")
+
+Пример работы GUI:
 
 Бинаризация исходного изображения методом Бернсена:
 
@@ -22,6 +24,8 @@
 
 ![bernsenkQuality](assets/bernsenQuality.png "bernsenQuality")
 
+Пример работы GUI:
+
 Бинаризация исходного изображения методом Ниблека:
 
 ![niblack](assets/niblack.png "niblack")
@@ -32,11 +36,43 @@
 
 ![niblackQuality](assets/niblackQuality.png "niblackQuality")
 
+2. Изображение с параметрами генерации countCircles=5, minRadius=5, maxRadius=15, minContrast=25, maxContrast=200, blur=3, noise=5:
+
+![example2](assets/example2.png "example2")
+
+Детектирование при параметрах radius = 14, CMin = 40:
+
+![bernsenDetection2](assets/bernsenDetection2.png "bernsenDetection2")
+
+![bernsenkQuality](assets/bernsenQuality.png "bernsenQuality")
+
+Детектирование при параметрах Radius = 8, k Value = 9, d Value = 7:
+
+![niblackDetection2](assets/niblackDetection2.png "niblackDetection2")
+
+![niblackQuality2](assets/niblackQuality2.png "niblackQuality2")
+
+3. Изображение с параметрами генерации countCircles=7, minRadius=5, maxRadius=20, minContrast=40, maxContrast=180, blur=3, noise=7:
+
+![example3](assets/example3.png "example3")
+
+Детектирование при параметрах radius = 10, CMin = 30:
+
+![bernsenDetection3](assets/bernsenDetection3.png "bernsenDetection3")
+
+![bernsenkQuality3](assets/bernsenQuality3.png "bernsenQuality3")
+
+Детектирование при параметрах Radius = 20, k Value = 9, d Value = 23:
+
+![niblackDetection3](assets/niblackDetection3.png "niblackDetection3")
+
+![niblackQuality3](assets/niblackQuality3.png "niblackQuality3")
+
 ### Работа консольного приложения
 
 Для запуска консольного приложения, нужно найти исполняемый файл в вашей директории и прописать в консоль:
 
-```.\lab04.exe <countCircles> <minRadius> <maxRadius> <minContrast> <maxContrast> <blur> <method("bernsen", "niblack", "detection")>```
+```.\lab04.exe <countCircles> <minRadius> <maxRadius> <minContrast> <maxContrast> <blur> <noise> <method("bernsen", "niblack", "detection")>```
 
 Также можно просто запустить исполняемый файл, подкоректировав параметры в самой программе.
 

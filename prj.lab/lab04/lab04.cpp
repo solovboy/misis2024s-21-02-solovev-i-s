@@ -90,7 +90,7 @@ cv::Mat add_gaussian_noise(const cv::Mat& image, const double std_dev) {
 	return noisy_image;
 }
 
-cv::Mat generateImage(const int& countCircles, int minRadius, int maxRadius, int minContrast, int maxContrast, int blur) {
+cv::Mat generateImage(const int& countCircles, int minRadius, int maxRadius, int minContrast, int maxContrast, int blur, int noise) {
 	int side_length = 4 * maxRadius * (countCircles - 1);
 	cv::Mat image(side_length, side_length, CV_8UC1, cv::Scalar(0));
 
@@ -110,7 +110,7 @@ cv::Mat generateImage(const int& countCircles, int minRadius, int maxRadius, int
 	cv::GaussianBlur(image, image, cv::Size(blur * 2 + 1, blur * 2 + 1), 0);
 
 	cv::Mat result;
-	result = add_gaussian_noise(image, blur);
+	result = add_gaussian_noise(image, noise);
 
 	return result;
 }
@@ -119,12 +119,13 @@ void onTrackbar(int, void*) {}
 
 int main(int argc, char* argv[]) {
 	//Default parametrs
-	int countCircles = 10;
+	int countCircles = 7;
 	int minRadius = 5;
-	int maxRadius = 15;
-	int minContrast = 50;
-	int maxContrast = 255;
-	int blur = 4;
+	int maxRadius = 20;
+	int minContrast = 40;
+	int maxContrast = 180;
+	int blur = 3;
+	int noise = 7;
 	std::string method = "detection";
 
 	if (argc >= 7) {
@@ -134,11 +135,12 @@ int main(int argc, char* argv[]) {
 		minContrast = std::stoi(argv[4]);
 		maxContrast = std::stoi(argv[5]);
 		blur = std::stoi(argv[6]);
-		method = argv[7];
+		noise = std::stoi(argv[7]);
+		method = argv[8];
 	}
 
-	cv::Mat image = generateImage(countCircles, minRadius, maxRadius, minContrast, maxContrast, blur);
-
+	cv::Mat image = generateImage(countCircles, minRadius, maxRadius, minContrast, maxContrast, blur, noise);
+	//cv::imwrite("example3.png", image);
 	cv::Mat binaryImage;
 
 	if (method == "bernsen") {
@@ -187,8 +189,8 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	else if (method == "detection") {
-		//binaryImage = bernsenBinary(image, 14, 40);
-		binaryImage = niblackBinary(image, 24, 0.90, 18);
+		//binaryImage = bernsenBinary(image, 10, 30);
+		binaryImage = niblackBinary(image, 20, 0.90, 23);
 		
 		// Search for circles in the image
 		std::vector<cv::Vec3f> circles;
